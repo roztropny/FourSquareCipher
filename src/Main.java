@@ -9,5 +9,6 @@ public class Main {
             }
             System.out.println(str);
         }
+        System.out.println(1.5 % 1);
     }
 }

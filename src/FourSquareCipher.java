@@ -2,13 +2,20 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class FourSquareCipher {
-    private String[][] toEncryptTable1;
-    private String[][] toEncryptTable2;
-    private String[][] toDecryptTable1;
-    private String[][] toDecryptTable2;
+    /*
+    ------------------------------------------
+    |toEncryptUpTable   | toDecryptUpTable   |
+    |----------------------------------------|
+    |toDecryptDownTable | toEncryptDownTable |
+    ------------------------------------------
+     */
+    private String[][] toEncryptUpTable;
+    private String[][] toEncryptDownTable;
+    private String[][] toDecryptUpTable;
+    private String[][] toDecryptDownTable;
 
     public FourSquareCipher() {
-        this.toEncryptTable1 = new String[][]{
+        this.toEncryptUpTable = new String[][]{
                 {"a", "ą", "b", "c", "ć", "d"},
                 {"e", "ę", "f", "g", "h", "i"},
                 {"j", "k", "l", "ł", "m", "n"},
@@ -16,14 +23,14 @@ public class FourSquareCipher {
                 {"s", "ś", "t", "u", "v", "w"},
                 {"x", "y", "z", "ź", "ż", " "},
         };
-        this.toEncryptTable2 = this.toEncryptTable1;
-        this.toDecryptTable1 = this.toEncryptTable1;
-        this.toUpperMatrix(this.toDecryptTable1);
-        this.toDecryptTable2 = this.toDecryptTable1;
-        this.shuffleMatrix(this.toEncryptTable1);
-        this.shuffleMatrix(this.toEncryptTable2);
-        this.shuffleMatrix(this.toDecryptTable1);
-        this.shuffleMatrix(this.toDecryptTable2);
+        this.toEncryptDownTable = this.toEncryptUpTable;
+        this.toDecryptUpTable = this.toEncryptUpTable;
+        this.toUpperMatrix(this.toDecryptUpTable);
+        this.toDecryptDownTable = this.toDecryptUpTable;
+        this.shuffleMatrix(this.toEncryptUpTable);
+        this.shuffleMatrix(this.toEncryptDownTable);
+        this.shuffleMatrix(this.toDecryptUpTable);
+        this.shuffleMatrix(this.toDecryptDownTable);
     }
 
     private void toUpperArray(String[] array){
@@ -49,12 +56,39 @@ public class FourSquareCipher {
         Collections.shuffle(Arrays.asList(matrix));
     }
 
-    public String[][] getToEncryptTable1(){
-        return this.toEncryptTable1;
+    private Position getCharPosition(String string, String[][] matrix) throws Throwable{
+        Position position = null;
+        outer : for(int i = 0; i < matrix.length; i++){
+            for(int j = 0; j < matrix[i].length; j++){
+                if(matrix[i][j] == string){
+                    position = new Position(i, j);
+                    break outer;
+                }
+            }
+        }
+        if(position == null){
+            throw new Throwable("Znak \""+string+"\" nie znajduje sie w macerzy kodowania");
+        }
+        return position;
     }
 
-    public String encryptString(String in){//TODO
-        return new String();
+    private String encryptPair(String charOne, String charTwo) throws Throwable{
+        Position charOnePosition = getCharPosition(charOne, this.toEncryptUpTable);
+        Position charTwoPosition = getCharPosition(charTwo, this.toDecryptDownTable);
+        String encrypted = this.toDecryptUpTable[charOnePosition.row][charTwoPosition.col] + this.toDecryptDownTable[charTwoPosition.row][charOnePosition.col];
+        return encrypted;
+    }
+
+    public String encryptString(String in) throws Throwable {
+        if((in.length() % 2) == 0){
+            String out = "";
+            for(int i = 0; i < in.length() - 1; i = i + 2){
+                out += encryptPair(String.valueOf(in.charAt(i)), String.valueOf(in.charAt(i + 1)));
+            }
+            return out;
+        }else{
+            throw new Throwable("Tekst wejsciowy zawiera nieparzysta liczbe znakow");
+        }
     }
 
     public String decryptString(String in){
@@ -62,7 +96,19 @@ public class FourSquareCipher {
         return new String();
     }
 
+    public String[][] getToEncryptUpTable() {
+        return toEncryptUpTable;
+    }
 
+    public String[][] getToEncryptDownTable() {
+        return toEncryptDownTable;
+    }
 
+    public String[][] getToDecryptUpTable() {
+        return toDecryptUpTable;
+    }
 
+    public String[][] getToDecryptDownTable() {
+        return toDecryptDownTable;
+    }
 }
