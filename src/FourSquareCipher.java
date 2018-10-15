@@ -74,8 +74,15 @@ public class FourSquareCipher {
 
     private String encryptPair(String charOne, String charTwo) throws Throwable{
         Position charOnePosition = getCharPosition(charOne, this.toEncryptUpTable);
-        Position charTwoPosition = getCharPosition(charTwo, this.toDecryptDownTable);
+        Position charTwoPosition = getCharPosition(charTwo, this.toEncryptDownTable);
         String encrypted = this.toDecryptUpTable[charOnePosition.row][charTwoPosition.col] + this.toDecryptDownTable[charTwoPosition.row][charOnePosition.col];
+        return encrypted;
+    }
+
+    private String decryptPair(String charOne, String charTwo) throws Throwable{
+        Position charOnePosition = getCharPosition(charOne, this.toDecryptUpTable);
+        Position charTwoPosition = getCharPosition(charTwo, this.toDecryptDownTable);
+        String encrypted = this.toEncryptUpTable[charOnePosition.row][charTwoPosition.col] + this.toEncryptDownTable[charTwoPosition.row][charOnePosition.col];
         return encrypted;
     }
 
@@ -91,9 +98,16 @@ public class FourSquareCipher {
         }
     }
 
-    public String decryptString(String in){
-        //TODO
-        return new String();
+    public String decryptString(String in) throws Throwable{
+        if((in.length() % 2) == 0){
+            String out = "";
+            for(int i = 0; i < in.length() - 1; i = i + 2){
+                out += decryptPair(String.valueOf(in.charAt(i)), String.valueOf(in.charAt(i + 1)));
+            }
+            return out;
+        }else{
+            throw new Throwable("Tekst wejsciowy zawiera nieparzysta liczbe znakow");
+        }
     }
 
     public String[][] getToEncryptUpTable() {
