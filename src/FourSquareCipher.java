@@ -1,3 +1,5 @@
+import com.google.gson.Gson;
+
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -15,7 +17,12 @@ public class FourSquareCipher {
     private String[][] toDecryptDownTable;
 
     public FourSquareCipher() {
-        this.toEncryptUpTable = new String[][]{
+
+
+    }
+
+    public void randMatrix(){
+        String[][] charArray = new String[][]{
                 {"a", "ą", "b", "c", "ć", "d"},
                 {"e", "ę", "f", "g", "h", "i"},
                 {"j", "k", "l", "ł", "m", "n"},
@@ -23,14 +30,36 @@ public class FourSquareCipher {
                 {"s", "ś", "t", "u", "v", "w"},
                 {"x", "y", "z", "ź", "ż", " "},
         };
-        this.toEncryptDownTable = this.toEncryptUpTable;
-        this.toDecryptUpTable = this.toEncryptUpTable;
+        this.randMatrix(charArray);
+    }
+
+    public void randMatrix(String[][] charArray){
+        this.toEncryptUpTable = new String[charArray.length][];
+        this.toEncryptDownTable = new String[charArray.length][];
+        this.toDecryptUpTable = new String[charArray.length][];
+        this.toDecryptDownTable = new String[charArray.length][];
+        for(int i = 0; i < charArray.length; i++){
+            this.toEncryptUpTable[i] = charArray[i].clone();
+            this.toEncryptDownTable[i] = charArray[i].clone();
+            this.toDecryptUpTable[i] = charArray[i].clone();
+            this.toDecryptDownTable[i] = charArray[i].clone();
+        }
         this.toUpperMatrix(this.toDecryptUpTable);
-        this.toDecryptDownTable = this.toDecryptUpTable;
+        this.toUpperMatrix(this.toDecryptDownTable);
         this.shuffleMatrix(this.toEncryptUpTable);
         this.shuffleMatrix(this.toEncryptDownTable);
         this.shuffleMatrix(this.toDecryptUpTable);
         this.shuffleMatrix(this.toDecryptDownTable);
+    }
+
+    public void printMatrix(String[][] matrix){
+        String str = new String();
+        for(int i=0; i< matrix.length; i++, str = ""){
+            for (int j = 0; j < matrix[i].length; j++){
+                str = str+matrix[i][j];
+            }
+            System.out.println(str);
+        }
     }
 
     private void toUpperArray(String[] array){
@@ -60,7 +89,7 @@ public class FourSquareCipher {
         Position position = null;
         outer : for(int i = 0; i < matrix.length; i++){
             for(int j = 0; j < matrix[i].length; j++){
-                if(matrix[i][j] == string){
+                if(matrix[i][j].equals(string)){
                     position = new Position(i, j);
                     break outer;
                 }
@@ -87,10 +116,22 @@ public class FourSquareCipher {
     }
 
     public String encryptString(String in) throws Throwable {
-        if((in.length() % 2) == 0){
+        //in = in.replaceAll("\n","").replaceAll("\r", "");
+        if((in.replaceAll("\n","").replaceAll("\r", "").length() % 2) == 0){
             String out = "";
             for(int i = 0; i < in.length() - 1; i = i + 2){
-                out += encryptPair(String.valueOf(in.charAt(i)), String.valueOf(in.charAt(i + 1)));
+                if(String.valueOf(in.charAt(i)).equals("\n")){
+                    out += "\n";
+                    i--;
+                }else if(String.valueOf(in.charAt(i + 1)).equals("\n")){
+                    String str = encryptPair(String.valueOf(in.charAt(i)), String.valueOf(in.charAt(i + 2)));
+                    str = str.charAt(0) + "\n" + str.charAt(1);
+                    out += str;
+                    i++;
+                }else{
+                    out += encryptPair(String.valueOf(in.charAt(i)), String.valueOf(in.charAt(i + 1)));
+                }
+
             }
             return out;
         }else{
@@ -99,15 +140,40 @@ public class FourSquareCipher {
     }
 
     public String decryptString(String in) throws Throwable{
-        if((in.length() % 2) == 0){
+        in = in.replaceAll("\n","").replaceAll("\r", "");
+        if((in.replaceAll("\n","").replaceAll("\r", "").length() % 2) == 0){
             String out = "";
             for(int i = 0; i < in.length() - 1; i = i + 2){
-                out += decryptPair(String.valueOf(in.charAt(i)), String.valueOf(in.charAt(i + 1)));
+                if(String.valueOf(in.charAt(i)).equals("\n")){
+                    out += "\n";
+                    i--;
+                }else if(String.valueOf(in.charAt(i + 1)).equals("\n")){
+                    String str = decryptPair(String.valueOf(in.charAt(i)), String.valueOf(in.charAt(i + 2)));
+                    str = str.charAt(0) + "\n" + str.charAt(1);
+                    out += str;
+                    i++;
+                }else{
+                    out += decryptPair(String.valueOf(in.charAt(i)), String.valueOf(in.charAt(i + 1)));
+                }
             }
             return out;
         }else{
             throw new Throwable("Tekst wejsciowy zawiera nieparzysta liczbe znakow");
         }
+    }
+
+    public String getMatrixJSON(){
+        FullMatrix matrix = new FullMatrix(toEncryptUpTable, toEncryptDownTable, toDecryptUpTable,  toDecryptDownTable);
+        String json = new Gson().toJson(matrix);
+        return json;
+    }
+
+    public void setMatrixJSON(String json){
+        FullMatrix matrix = new Gson().fromJson(json, FullMatrix.class);
+        toEncryptUpTable = matrix.toEncryptUpTable;
+        toEncryptDownTable = matrix.toEncryptDownTable;
+        toDecryptUpTable = matrix.toDecryptUpTable;
+        toDecryptDownTable = matrix.toDecryptDownTable;
     }
 
     public String[][] getToEncryptUpTable() {
