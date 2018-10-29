@@ -39,10 +39,10 @@ public class FourSquareCipher {
         this.toDecryptUpTable = new String[charArray.length][];
         this.toDecryptDownTable = new String[charArray.length][];
         for(int i = 0; i < charArray.length; i++){
-            this.toEncryptUpTable[i] = charArray[i].clone();
-            this.toEncryptDownTable[i] = charArray[i].clone();
-            this.toDecryptUpTable[i] = charArray[i].clone();
-            this.toDecryptDownTable[i] = charArray[i].clone();
+            this.toEncryptUpTable[i] = (String[])charArray[i].clone();
+            this.toEncryptDownTable[i] = (String[])charArray[i].clone();
+            this.toDecryptUpTable[i] = (String[])charArray[i].clone();
+            this.toDecryptDownTable[i] = (String[])charArray[i].clone();
         }
         this.toUpperMatrix(this.toDecryptUpTable);
         this.toUpperMatrix(this.toDecryptDownTable);
@@ -140,7 +140,7 @@ public class FourSquareCipher {
     }
 
     public String decryptString(String in) throws Throwable{
-        in = in.replaceAll("\n","").replaceAll("\r", "");
+        //in = in.replaceAll("\n","").replaceAll("\r", "");
         if((in.replaceAll("\n","").replaceAll("\r", "").length() % 2) == 0){
             String out = "";
             for(int i = 0; i < in.length() - 1; i = i + 2){
@@ -169,7 +169,7 @@ public class FourSquareCipher {
     }
 
     public void setMatrixJSON(String json){
-        FullMatrix matrix = new Gson().fromJson(json, FullMatrix.class);
+        FullMatrix matrix = (FullMatrix) new Gson().fromJson(json, FullMatrix.class);
         toEncryptUpTable = matrix.toEncryptUpTable;
         toEncryptDownTable = matrix.toEncryptDownTable;
         toDecryptUpTable = matrix.toDecryptUpTable;

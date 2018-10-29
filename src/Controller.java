@@ -4,6 +4,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -32,15 +33,28 @@ public class Controller {
         this.fh = new FileHandler();
     }
 
+    private void RisePopup(String info){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(info);
+        alert.showAndWait();
+    }
+
     private void setMatrix(){
-        this.setOneMatrix(fsc.getToEncryptUpTable(), 0, 0);
-        fsc.printMatrix(fsc.getToEncryptUpTable());
-        this.setOneMatrix(fsc.getToDecryptUpTable(), 1, 0);
-        fsc.printMatrix(fsc.getToDecryptUpTable());
-        this.setOneMatrix(fsc.getToDecryptDownTable(), 0, 1);
-        fsc.printMatrix(fsc.getToDecryptDownTable());
-        this.setOneMatrix(fsc.getToEncryptDownTable(), 1, 1);
-        fsc.printMatrix(fsc.getToEncryptDownTable());
+        try {
+            this.setOneMatrix(fsc.getToEncryptUpTable(), 0, 0);
+            fsc.printMatrix(fsc.getToEncryptUpTable());
+            this.setOneMatrix(fsc.getToDecryptUpTable(), 1, 0);
+            fsc.printMatrix(fsc.getToDecryptUpTable());
+            this.setOneMatrix(fsc.getToDecryptDownTable(), 0, 1);
+            fsc.printMatrix(fsc.getToDecryptDownTable());
+            this.setOneMatrix(fsc.getToEncryptDownTable(), 1, 1);
+            fsc.printMatrix(fsc.getToEncryptDownTable());
+        }
+        catch (Throwable e){
+            RisePopup(e.getMessage());
+        }
     }
 
     private void setOneMatrix(String[][] array, int x, int y){
@@ -59,69 +73,113 @@ public class Controller {
 
     @FXML
     protected void randMatrix(){
-        fsc.randMatrix();
-        this.setMatrix();
+        try {
+            fsc.randMatrix();
+            this.setMatrix();
+        }catch (Throwable e){
+            RisePopup(e.getMessage());
+        }
     }
 
     @FXML
     protected void encode() throws Throwable {
-        this.toDecode.setText(fsc.encryptString(this.toEncode.getText()));
+        try {
+            this.toDecode.setText(fsc.encryptString(this.toEncode.getText()));
+        }
+        catch (Throwable e){
+            RisePopup(e.getMessage());
+        }
     }
 
     @FXML
     protected void encodeFromFile() throws IOException {
-        File file = new FileChooser().showOpenDialog(toEncode.getScene().getWindow());
-        if(file != null){
-            toEncode.setText(FileHandler.readFile(file.getPath()));
+        try {
+            File file = new FileChooser().showOpenDialog(toEncode.getScene().getWindow());
+            if (file != null) {
+                toEncode.setText(FileHandler.readFile(file.getPath()));
+            }
+        }
+        catch (Throwable e){
+            RisePopup(e.getMessage());
         }
     }
 
     @FXML
     protected void encodeToFile() throws IOException {
-        File file = new FileChooser().showSaveDialog(toEncode.getScene().getWindow());
-        if(file != null){
-            System.out.println(file.getPath());
-            FileHandler.writeFile(file.getPath(), toEncode.getText());
+        try {
+            File file = new FileChooser().showSaveDialog(toEncode.getScene().getWindow());
+            if (file != null) {
+                System.out.println(file.getPath());
+                FileHandler.writeFile(file.getPath(), toEncode.getText());
+            }
+        }
+        catch (Throwable e){
+            RisePopup(e.getMessage());
         }
     }
 
     @FXML
-    protected void decode() throws Throwable{
-        this.toEncode.setText(fsc.encryptString(this.toDecode.getText()));
+    protected void decode(){
+        try {
+            this.toEncode.setText(fsc.decryptString(this.toDecode.getText()));
+        }
+        catch (Throwable e){
+            RisePopup(e.getMessage());
+        }
     }
 
     @FXML
     protected void decodeFromFile() throws IOException {
-        File file = new FileChooser().showOpenDialog(toDecode.getScene().getWindow());
-        if(file != null){
-            toDecode.setText(FileHandler.readFile(file.getPath()));
+        try {
+            File file = new FileChooser().showOpenDialog(toDecode.getScene().getWindow());
+            if (file != null) {
+                toDecode.setText(FileHandler.readFile(file.getPath()));
+            }
+        }
+        catch (Throwable e){
+            RisePopup(e.getMessage());
         }
     }
 
     @FXML
     protected void decodeToFile() throws IOException {
-        File file = new FileChooser().showSaveDialog(toDecode.getScene().getWindow());
-        if(file != null){
-            System.out.println(file.getPath());
-            FileHandler.writeFile(file.getPath(), toDecode.getText());
+        try {
+            File file = new FileChooser().showSaveDialog(toDecode.getScene().getWindow());
+            if (file != null) {
+                System.out.println(file.getPath());
+                FileHandler.writeFile(file.getPath(), toDecode.getText());
+            }
+        }
+        catch (Throwable e){
+            RisePopup(e.getMessage());
         }
     }
 
     @FXML
     protected void MatrixToFile() throws IOException {
-        File file = new FileChooser().showSaveDialog(MatrixGrid.getScene().getWindow());
-        if(file != null){
-            System.out.println(file.getPath());
-            FileHandler.writeFile(file.getPath(), fsc.getMatrixJSON());
+        try {
+            File file = new FileChooser().showSaveDialog(MatrixGrid.getScene().getWindow());
+            if (file != null) {
+                System.out.println(file.getPath());
+                FileHandler.writeFile(file.getPath(), fsc.getMatrixJSON());
+            }
+        }
+        catch (Throwable e){
+            RisePopup(e.getMessage());
         }
     }
 
     @FXML
     protected void MatrixFromFile() throws IOException {
-        File file = new FileChooser().showOpenDialog(MatrixGrid.getScene().getWindow());
-        if(file != null){
-            fsc.setMatrixJSON(FileHandler.readFile(file.getPath()));
-            this.setMatrix();
+        try {
+            File file = new FileChooser().showOpenDialog(MatrixGrid.getScene().getWindow());
+            if (file != null) {
+                fsc.setMatrixJSON(FileHandler.readFile(file.getPath()));
+                this.setMatrix();
+            }
+        }
+        catch (Throwable e){
+            RisePopup(e.getMessage());
         }
     }
 
